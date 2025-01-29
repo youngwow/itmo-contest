@@ -1,0 +1,5 @@
+fastapi
+aiologger[aiofiles]
+pip-chill
+uvicorn
+gunicorn
