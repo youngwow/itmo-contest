@@ -13,7 +13,7 @@ services:
       - TAVILY_API_KEY=${TAVILY_API_KEY}
     volumes:
       - ./logs:/app/logs
-    network_mode: host
+    # network_mode: host
     # Если нужно GPU
     # runtime: nvidia
     # deploy:
