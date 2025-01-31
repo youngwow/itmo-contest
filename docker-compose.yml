@@ -3,12 +3,14 @@ version: "3.8"
 services:
   fastapi-service:
     build: .
-    container_name: fastapi-baseline
+    container_name: fastapi-my-solution
     ports:
       - "8080:8080"
     restart: unless-stopped
     environment:
       - TZ=UTC
+      - GIGACHAT_CREDENTIALS=${GIGACHAT_CREDENTIALS}
+      - TAVILY_API_KEY=${TAVILY_API_KEY}
     volumes:
       - ./logs:/app/logs
     # Если нужно GPU

@@ -6,8 +6,11 @@ from pydantic import HttpUrl
 from schemas.request import PredictionRequest, PredictionResponse
 from utils.logger import setup_logger
 
+from agents.itmo_agent import create_agent
+
 # Initialize
 app = FastAPI()
+agent = create_agent()
 logger = None
 
 
@@ -53,18 +56,20 @@ async def log_requests(request: Request, call_next):
 async def predict(body: PredictionRequest):
     try:
         await logger.info(f"Processing prediction request with id: {body.id}")
-        # Здесь будет вызов вашей модели
-        answer = 1  # Замените на реальный вызов модели
-        sources: List[HttpUrl] = [
-            HttpUrl("https://itmo.ru/ru/"),
-            HttpUrl("https://abit.itmo.ru/"),
-        ]
+    
+        result = await agent.ainvoke({
+            "query": body.query,
+            "id": body.id
+        })
+        answer = result["final_answer"]["answer"]
+        sources = result["final_answer"]["sources"]
+        reasoning = result["final_answer"]["reasoning"]
 
         response = PredictionResponse(
             id=body.id,
             answer=answer,
-            reasoning="Из информации на сайте",
-            sources=sources,
+            reasoning=reasoning,
+            sources=sources
         )
         await logger.info(f"Successfully processed request {body.id}")
         return response
