@@ -2,7 +2,7 @@ import time
 from typing import List
 
 from fastapi import FastAPI, HTTPException, Request, Response
-from pydantic import HttpUrl
+
 from schemas.request import PredictionRequest, PredictionResponse
 from utils.logger import setup_logger
 
@@ -61,14 +61,24 @@ async def predict(body: PredictionRequest):
             "query": body.query,
             "id": body.id
         })
-        answer = result["final_answer"]["answer"]
-        sources = result["final_answer"]["sources"]
-        reasoning = result["final_answer"]["reasoning"]
+        
+        final_answer = result.get("final_answer", {})
+        
+        answer = final_answer.get("answer")
+        if answer is not None:
+            try:
+                answer = int(answer)
+            except (ValueError, TypeError):
+                answer = None
+
+        sources = final_answer.get("sources", [])
+        if not isinstance(sources, list):
+            sources = []
 
         response = PredictionResponse(
             id=body.id,
             answer=answer,
-            reasoning=reasoning,
+            reasoning=final_answer.get("reasoning", ""),
             sources=sources
         )
         await logger.info(f"Successfully processed request {body.id}")
